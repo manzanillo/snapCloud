@@ -62,20 +62,20 @@ $$;
         }, { if_not_exists = true })
 
         db.query('CREATE TRIGGER expire_token_trigger AFTER INSERT ON tokens FOR EACH STATEMENT EXECUTE PROCEDURE expire_token()')
-     end --,
+     end ,
 
-     -- [00000100] = function()
-     --     schema.rename_column('users', 'created', 'created_at')
-     --     schema.rename_column('projects', 'created', 'created_at')
-     --     schema.rename_column('tokens', 'created', 'created_at')
-     --     schema.rename_column('projects', 'lastupdated', 'updated_at')
-     --     schema.rename_column('projects', 'lastshared', 'shared_at')
-     --     schema.rename_column('projects', 'firstpublished', 'published_at')
-     -- end,
-     --
-     -- [00000101] = function()
-     --     schema.add_column(
-     --         'users', 'updated_at', types.time({ timezone = true, null = true })
-     --     )
-     -- end
+     [00000100] = function()
+         schema.rename_column('users', 'created', 'created_at')
+         schema.rename_column('projects', 'created', 'created_at')
+         schema.rename_column('tokens', 'created', 'created_at')
+         schema.rename_column('projects', 'lastupdated', 'updated_at')
+         schema.rename_column('projects', 'lastshared', 'shared_at')
+         schema.rename_column('projects', 'firstpublished', 'published_at')
+     end,
+
+     [00000101] = function()
+         schema.add_column(
+             'users', 'updated_at', types.time({ timezone = true, null = true })
+         )
+     end
 }
