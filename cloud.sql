@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.12
--- Dumped by pg_dump version 10.3 (Ubuntu 10.3-1.pgdg16.04+1)
+-- Dumped from database version 9.6.9
+-- Dumped by pg_dump version 9.6.9
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -30,15 +30,6 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: dom_username; Type: DOMAIN; Schema: public; Owner: cloud
---
-
-CREATE DOMAIN public.dom_username AS text;
-
-
-ALTER DOMAIN public.dom_username OWNER TO cloud;
-
---
 -- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: cloud
 --
 
@@ -59,37 +50,36 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: cloud
+--
+
+CREATE TABLE public.lapis_migrations (
+    name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.lapis_migrations OWNER TO cloud;
+
+--
 -- Name: projects; Type: TABLE; Schema: public; Owner: cloud
 --
 
 CREATE TABLE public.projects (
     id integer NOT NULL,
     projectname text NOT NULL,
-    ispublic boolean,
-    ispublished boolean,
+    ispublic boolean DEFAULT false,
+    ispublished boolean DEFAULT false,
     notes text,
     created timestamp with time zone,
     lastupdated timestamp with time zone,
     lastshared timestamp with time zone,
-    username public.dom_username NOT NULL,
+    username text NOT NULL,
     firstpublished timestamp with time zone,
     remixes integer[]
 );
 
 
 ALTER TABLE public.projects OWNER TO cloud;
-
---
--- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: cloud
---
-
-CREATE VIEW public.count_recent_projects AS
- SELECT count(*) AS count
-   FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '1 day'::interval));
-
-
-ALTER TABLE public.count_recent_projects OWNER TO cloud;
 
 --
 -- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
@@ -113,24 +103,12 @@ ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 
 
 --
--- Name: recent_projects_2_days; Type: VIEW; Schema: public; Owner: cloud
---
-
-CREATE VIEW public.recent_projects_2_days AS
- SELECT count(*) AS count
-   FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '2 days'::interval));
-
-
-ALTER TABLE public.recent_projects_2_days OWNER TO cloud;
-
---
 -- Name: tokens; Type: TABLE; Schema: public; Owner: cloud
 --
 
 CREATE TABLE public.tokens (
     created timestamp without time zone DEFAULT now() NOT NULL,
-    username public.dom_username NOT NULL,
+    username text NOT NULL,
     purpose text,
     value text NOT NULL
 );
@@ -144,15 +122,15 @@ ALTER TABLE public.tokens OWNER TO cloud;
 
 CREATE TABLE public.users (
     id integer NOT NULL,
+    username text NOT NULL,
     created timestamp with time zone,
-    username public.dom_username NOT NULL,
     email text,
     salt text,
     password text,
     about text,
     location text,
-    isadmin boolean,
-    verified boolean
+    isadmin boolean DEFAULT false,
+    verified boolean DEFAULT false
 );
 
 
@@ -194,6 +172,14 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+--
+
+ALTER TABLE ONLY public.lapis_migrations
+    ADD CONSTRAINT lapis_migrations_pkey PRIMARY KEY (name);
+
+
+--
 -- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
 --
 
@@ -202,19 +188,19 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: tokens tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+--
+
+ALTER TABLE ONLY public.tokens
+    ADD CONSTRAINT tokens_pkey PRIMARY KEY (value);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (username);
-
-
---
--- Name: tokens value_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
---
-
-ALTER TABLE ONLY public.tokens
-    ADD CONSTRAINT value_pkey PRIMARY KEY (value);
 
 
 --
@@ -233,82 +219,11 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+-- Name: tokens tokens_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
 --
 
 ALTER TABLE ONLY public.tokens
-    ADD CONSTRAINT users_fkey FOREIGN KEY (username) REFERENCES public.users(username);
-
-
---
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
---
--- Name: FUNCTION expire_token(); Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON FUNCTION public.expire_token() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.expire_token() FROM cloud;
-GRANT ALL ON FUNCTION public.expire_token() TO cloud;
-GRANT ALL ON FUNCTION public.expire_token() TO PUBLIC;
-GRANT ALL ON FUNCTION public.expire_token() TO snapanalytics;
-
-
---
--- Name: TABLE projects; Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON TABLE public.projects FROM PUBLIC;
-REVOKE ALL ON TABLE public.projects FROM cloud;
-GRANT ALL ON TABLE public.projects TO cloud;
-GRANT SELECT ON TABLE public.projects TO snapanalytics;
-
-
---
--- Name: TABLE count_recent_projects; Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON TABLE public.count_recent_projects FROM PUBLIC;
-REVOKE ALL ON TABLE public.count_recent_projects FROM cloud;
-GRANT ALL ON TABLE public.count_recent_projects TO cloud;
-GRANT SELECT ON TABLE public.count_recent_projects TO snapanalytics;
-
-
---
--- Name: TABLE recent_projects_2_days; Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON TABLE public.recent_projects_2_days FROM PUBLIC;
-REVOKE ALL ON TABLE public.recent_projects_2_days FROM cloud;
-GRANT ALL ON TABLE public.recent_projects_2_days TO cloud;
-GRANT SELECT ON TABLE public.recent_projects_2_days TO snapanalytics;
-
-
---
--- Name: TABLE tokens; Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON TABLE public.tokens FROM PUBLIC;
-REVOKE ALL ON TABLE public.tokens FROM cloud;
-GRANT ALL ON TABLE public.tokens TO cloud;
-GRANT SELECT ON TABLE public.tokens TO snapanalytics;
-
-
---
--- Name: TABLE users; Type: ACL; Schema: public; Owner: cloud
---
-
-REVOKE ALL ON TABLE public.users FROM PUBLIC;
-REVOKE ALL ON TABLE public.users FROM cloud;
-GRANT ALL ON TABLE public.users TO cloud;
-GRANT SELECT ON TABLE public.users TO snapanalytics;
+    ADD CONSTRAINT tokens_username_fkey FOREIGN KEY (username) REFERENCES public.users(username);
 
 
 --
