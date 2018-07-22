@@ -24,27 +24,27 @@ $$;
         schema.create_table('users', {
             {'id', types.serial},
             {'username', types.text({ primary_key = true })},
-            {'created', types.time({ timezone = true, null = true  })},
-            {'email', types.text({ null = true })},
-            {'salt', types.text({ null = true })},
-            {'password', types.text({ null = true })},
+            {'created', types.time({ timezone = true })},
+            {'email', types.text},
+            {'salt', types.text},
+            {'password', types.text},
             {'about', types.text({ null = true })},
             {'location', types.text({ null = true })},
-            {'isadmin', types.boolean({ null = true })},
-            {'verified', types.boolean({ null = true })}
+            {'isadmin', types.boolean},
+            {'verified', types.boolean}
 
         }, { if_not_exists = true })
 
         schema.create_table('projects', {
             {'id', types.serial},
+            {'username', types.text},
             {'projectname', types.text},
-            {'ispublic', types.boolean({ null = true })},
-            {'ispublished', types.boolean({ null = true })},
+            {'ispublic', types.boolean},
+            {'ispublished', types.boolean},
             {'notes', types.text({ null = true })},
-            {'created', types.time({ timezone = true, null = true  })},
+            {'created', types.time({ timezone = true })},
             {'lastupdated', types.time({ timezone = true, null = true  })},
             {'lastshared', types.time({ timezone = true, null = true })},
-            {'username', types.text},
             {'firstpublished', types.time({ timezone = true, null = true })},
             {'remixes', types.integer({ array = true, null = true })},
 
@@ -53,9 +53,9 @@ $$;
         }, { if_not_exists = true })
 
         schema.create_table('tokens', {
-            {'created', types.time({ default = db.raw('now()')  })},
+            {'created', types.time({ timezone = true })},
             {'username', types.text},
-            {'purpose', types.text({ null = true })},
+            {'purpose', types.text},
             {'value', types.text({ primary_key = true })},
 
             "FOREIGN KEY (username) REFERENCES users"

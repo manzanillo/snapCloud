@@ -66,14 +66,14 @@ ALTER TABLE public.lapis_migrations OWNER TO cloud;
 
 CREATE TABLE public.projects (
     id integer NOT NULL,
+    username text NOT NULL,
     projectname text NOT NULL,
-    ispublic boolean DEFAULT false,
-    ispublished boolean DEFAULT false,
+    ispublic boolean DEFAULT false NOT NULL,
+    ispublished boolean DEFAULT false NOT NULL,
     notes text,
-    created timestamp with time zone,
+    created timestamp with time zone NOT NULL,
     lastupdated timestamp with time zone,
     lastshared timestamp with time zone,
-    username text NOT NULL,
     firstpublished timestamp with time zone,
     remixes integer[]
 );
@@ -107,9 +107,9 @@ ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 --
 
 CREATE TABLE public.tokens (
-    created timestamp without time zone DEFAULT now() NOT NULL,
+    created timestamp with time zone NOT NULL,
     username text NOT NULL,
-    purpose text,
+    purpose text NOT NULL,
     value text NOT NULL
 );
 
@@ -123,14 +123,14 @@ ALTER TABLE public.tokens OWNER TO cloud;
 CREATE TABLE public.users (
     id integer NOT NULL,
     username text NOT NULL,
-    created timestamp with time zone,
-    email text,
-    salt text,
-    password text,
+    created timestamp with time zone NOT NULL,
+    email text NOT NULL,
+    salt text NOT NULL,
+    password text NOT NULL,
     about text,
     location text,
-    isadmin boolean DEFAULT false,
-    verified boolean DEFAULT false
+    isadmin boolean DEFAULT false NOT NULL,
+    verified boolean DEFAULT false NOT NULL
 );
 
 
