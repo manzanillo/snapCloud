@@ -20,6 +20,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local util = package.loaded.util
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Users = package.loaded.Users
@@ -116,5 +117,6 @@ create_token = function (self, purpose, username, email)
         email,
         mail_subjects[purpose] .. username,
         mail_bodies[purpose],
-        self:build_url('/users/' .. username .. '/' .. purpose .. '/' .. token_value))
+        self:build_url('/users/' .. util.escape(username) .. '/' ..
+                       purpose .. '/' .. util.escape(token_value)))
 end
